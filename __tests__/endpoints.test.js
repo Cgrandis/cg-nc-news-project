@@ -194,7 +194,7 @@ describe('200: GET /api - GET /api/articles', () => {
     })
 });
 
-describe.only('GET /api error handling', () => {
+describe('GET /api error handling', () => {
     test('responds with 400 for invalid query parameters', async () => {
         const response = await request(app)
             .get('/api')
@@ -202,5 +202,119 @@ describe.only('GET /api error handling', () => {
             .expect(400);
         
         expect(response.body.error).toBe('Invalid query parameters');
+    });
+});
+
+describe('GET /api/articles: ', () => {
+    test('GET 200: responds displaying all articles in the database', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((response) => {
+            const { body: { articles } } = response
+            expect(Array.isArray(articles)).toBe(true)
+            expect(response.body.articles.length).toBe(13);
+            
+        });
+    });
+
+    test('200: responds with expected property and no empty fields', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((response) => {
+            const { body: {articles} } = response
+            articles.forEach((article) => {
+            expect(article).toHaveProperty('title');
+            expect(article.title).not.toBe('');
+            expect(article).toHaveProperty('topic');
+            expect(article.topic).not.toBe('');
+            expect(article).toHaveProperty('author');
+            expect(article.author).not.toBe('');
+            expect(article).toHaveProperty('body');
+            expect(article.body).not.toBe('');
+            expect(article).toHaveProperty('created_at');
+            expect(article.created_at).not.toBe('');
+            expect(article).toHaveProperty('votes');
+            expect(article.votes).not.toBe('');
+            expect(article).toHaveProperty('article_img_url');
+            expect(article.article_img_url).not.toBe('');
+            });
+        });
+    });
+    test('200: responds with not null fields', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((response) => {
+            const { body: {articles} } = response
+            articles.forEach((article) => {
+            expect(article.title).not.toBeNull();
+            expect(article.topic).not.toBeNull();
+            expect(article.author).not.toBeNull();
+            expect(article.body).not.toBeNull();
+            expect(article.created_at).not.toBeNull();
+            expect(article.votes).not.toBeNull();
+            expect(article.article_img_url).not.toBeNull();
+            });
+        });
+    });
+    test('200: reponds with string values', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((response) => {
+            const { body: {articles} } = response
+            articles.forEach((article) => {
+                console.log(article.created_at)
+            expect(typeof article.title).toBe('string');
+            expect(typeof article.topic).toBe('string');
+            expect(typeof article.author).toBe('string');
+            expect(typeof article.body).toBe('string');
+            expect(typeof article.created_at).toBe('string');
+            expect(typeof article.votes).toBe('number');
+            expect(typeof article.article_img_url).toBe('string');
+            });
+        });
+    });
+});
+
+describe.only('/api/articles/:article_id', () => {
+    test('200: responds with the article object for a valid article_id', () => {
+        return request(app)
+            .get('/api/articles/1')  // Replace '1' with an existing article_id in your database
+            .expect(200)
+            .then((response) => {
+                const { body: { article } } = response;
+                console.log(article)
+                expect(article).toEqual(expect.objectContaining({
+                    article_id: expect.any(Number),
+                    title: expect.any(String),
+                    body: expect.any(String),
+                    votes: expect.any(Number),
+                    topic: expect.any(String),
+                    author: expect.any(String),
+                    created_at: expect.any(String),
+                    article_img_url: expect.any(String),
+                }));
+            });
+    });
+
+    test('404: responds with an error message when article_id does not exist', () => {
+        return request(app)
+            .get('/api/articles/9999')  // Assuming 9999 is a non-existent article_id
+            .expect(404)
+            .then((response) => {
+                expect(response.body.msg).toBe('Article not found');
+            });
+    });
+
+    test('400: responds with an error message when article_id is invalid', () => {
+        return request(app)
+            .get('/api/articles/not-a-valid-id')
+            .expect(400)
+            .then((response) => {
+                expect(response.body.msg).toBe('Invalid article_id');
+            });
     });
 });

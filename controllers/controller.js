@@ -1,4 +1,4 @@
-const { getAllTopics, getApiEndpoints } = require('../models/model')
+const { getAllTopics, getApiEndpoints, getAllArticles, fetchArticlesById } = require('../models/model')
 
 exports.getTopics = (req, res, next) => {
     getAllTopics().then((topics) => {
@@ -12,3 +12,25 @@ exports.getApiEndpoints = (req, res) => {
     }
     res.status(200).send(endpoints);
 }
+
+exports.getArticles = (req, res, next) => {
+    getAllArticles().then((articles) => {
+        res.status(200).send({articles});
+    });
+};  
+
+exports.getArticlesById = (req, res, next) => {
+    const { article_id } = req.params;
+    
+    fetchArticlesById(article_id).then((article) => {
+        
+        if (article) {
+            res.status(200).send({ article });
+        } else {
+            res.status(404).send({ msg: 'Article not found'})
+        }
+    })
+    .catch((err) => {
+        next(err);
+    });    
+};

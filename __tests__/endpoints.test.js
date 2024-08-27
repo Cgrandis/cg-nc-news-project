@@ -266,7 +266,7 @@ describe('GET /api/articles: ', () => {
         .then((response) => {
             const { body: {articles} } = response
             articles.forEach((article) => {
-                console.log(article.created_at)
+        
             expect(typeof article.title).toBe('string');
             expect(typeof article.topic).toBe('string');
             expect(typeof article.author).toBe('string');
@@ -286,7 +286,6 @@ describe.only('/api/articles/:article_id', () => {
             .expect(200)
             .then((response) => {
                 const { body: { article } } = response;
-                console.log(article)
                 expect(article).toEqual(expect.objectContaining({
                     article_id: expect.any(Number),
                     title: expect.any(String),
@@ -317,4 +316,4 @@ describe.only('/api/articles/:article_id', () => {
                 expect(response.body.msg).toBe('Invalid article_id');
             });
     });
-});
+}); 

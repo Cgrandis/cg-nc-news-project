@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
-const { getTopics, getApiEndpoints, getArticles, getArticlesById, getCommentsByArticleId } = require('./controllers/controller')
+const { getTopics, getArticles, getArticlesById, getCommentsByArticleId } = require('./controllers/get-controller')
+const { addCommentToArticle } = require('./controllers/post-controller')
+const { getApiEndpoints } = require('./controllers/api-endpoints-controller')
 
 
 app.use(express.json())
@@ -14,6 +16,8 @@ app.get('/api/articles', getArticles);
 app.get('/api/articles/:article_id', getArticlesById);
 
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
+
+app.post('/api/articles/:article_id/comments', addCommentToArticle)
 
 app.use((err, req, res, next) => {
   if (err.code === '22P02') {  // Example: PostgreSQL error code for invalid text representation

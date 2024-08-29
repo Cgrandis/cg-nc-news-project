@@ -1,22 +1,11 @@
-const { getAllTopics, getAllArticles, fetchArticlesById, fetchCommentsByArticleId } = require('../models/model')
-const endpoints = require('../endpoints.json')
+const { getAllTopics, getAllArticles, fetchArticlesById, fetchCommentsByArticleId } = require('../models/get-model')
+
 
 exports.getTopics = (req, res, next) => {
     getAllTopics().then((topics) => {
         res.status(200).send({topics});
     })
 }
-
-exports.getApiEndpoints = (req, res) => {
-    if (req.query.invalidParam) {
-        return res.status(400).json({ error: 'Invalid query parameters' });
-    }
-    // Check if endpoints data is loaded correctly
-    if (!endpoints) {
-        return res.status(500).json({ error: 'Failed to load endpoint data' });
-    }
-    res.status(200).json(endpoints);
-};
 
 exports.getArticles = (req, res, next) => {
     getAllArticles().then((articles) => {

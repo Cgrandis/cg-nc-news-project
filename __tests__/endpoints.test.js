@@ -268,6 +268,22 @@ describe('CORE: PATCH /api/articles/:article_id:', () => {
     
 });
 
+describe('CORE: DELETE /api/comments/:comment_id', () => {
+    test('204: deletes the comment and returns no content', async () => {
+        const response = await request(app)
+            .delete('/api/comments/1')
+            .expect(204);
+        expect(response.body).toEqual({});
+    });
+
+    test('404: returns not found for non-existent comment id', async () => {
+        const response = await request(app)
+            .delete('/api/comments/9999')
+            .expect(404);
+        expect(response.body.error).toBe('Comment not found');
+    });
+});
+
 //endpoints tests starts here
 
 describe('/api endpoints: ', () => {
@@ -306,7 +322,7 @@ describe('/api endpoints: ', () => {
 });
 
 describe('GET /api/articles', () => {
-    test('GET /api/articles responds with description and querie property', () => {
+    test('GET /api/articles responds with expected properties', () => {
         return request(app)
         .get('/api')
         .expect(200)
@@ -354,7 +370,7 @@ describe('GET /api/articles', () => {
 });
 
 describe('GET /api/articles/:article_id', () => {
-    test('GET /api/articles/:article_id responds with description and querie property', () => {
+    test('GET /api/articles/:article_id responds with expected properties', () => {
         return request(app)
         .get('/api')
         .expect(200)
@@ -396,7 +412,7 @@ describe('GET /api/articles/:article_id', () => {
 });
 
 describe('GET /api/articles/:article_id/comments', () => {
-    test('GET /api/articles/:article_id/comments responds with description and querie property', () => {
+    test('GET /api/articles/:article_id/comments responds with expected properties', () => {
         return request(app)
         .get('/api')
         .expect(200)
@@ -442,7 +458,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 });
 
 describe('POST /api/articles/:article_id/comments', () => {
-    test('POST /api/articles/:article_id/comments responds with description and querie property', () => {
+    test('POST /api/articles/:article_id/comments responds with expected properties', () => {
         return request(app)
         .get('/api')
         .expect(200)
@@ -488,7 +504,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 });
 
 describe('PATCH /api/articles/:article_id', () => { 
-    test('PATCH /api/articles/:article_id responds with description and querie property', () => {
+    test('PATCH /api/articles/:article_id responds with expected properties', () => {
         return request(app)
         .get('/api')
         .expect(200)
@@ -529,4 +545,22 @@ describe('PATCH /api/articles/:article_id', () => {
     });
 });
 
+describe('DELETE /api/comments/:comment_id', () => {
+    test.only('DELETE /api/comments/:comment_id responds with expected properties', () => {
+        return request(app)
+        .get('/api')
+        .expect(200)
+        .then((response) => {    
+            const { body } = response
+            expect(body['DELETE /api/comments/:comment_id']).toHaveProperty('description')
+            expect(typeof body['DELETE /api/comments/:comment_id'].description).toBe('string');
+            expect(body['DELETE /api/comments/:comment_id']).toHaveProperty('queries')
+            expect(typeof body['DELETE /api/comments/:comment_id'].queries).toBe('object');
+            expect(Array.isArray(body['DELETE /api/comments/:comment_id'].queries)).toBe(true);
+            expect(body['DELETE /api/comments/:comment_id']).toHaveProperty('exampleResponse')
+            expect(typeof body['DELETE /api/comments/:comment_id'].exampleResponse).toBe('object');
+            
+        });
+    });   
+});
 

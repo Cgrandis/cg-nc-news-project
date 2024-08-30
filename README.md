@@ -20,6 +20,10 @@ db/: Contains database setup scripts, seed data, and SQL files.
 data/: Contains mock data used for seeding the development database.
 index.js: Exports all the data from the data folder for easy access.
 
+https://supabase.com/dashboard/project/hlyapgfsrszykjgvhsra/editor/29162?schema=public
+
+https://cg-nc-news-project.onrender.com/api/articles/1
+
 --- 
 
 This portfolio project was created as part of a Digital Skills Bootcamp in Software Engineering provided by [Northcoders](https://northcoders.com/)

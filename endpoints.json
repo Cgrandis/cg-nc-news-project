@@ -21,6 +21,7 @@
           "body": "Text from the article..",
           "created_at": "2018-05-30T15:59:13.341Z",
           "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           "comment_count": 6
         }
       ]
@@ -60,8 +61,7 @@
   "POST /api/articles/:article_id/comments": {
     "description": "add in a new comment at an article by it's article_id",
     "queries": [],
-    "exampleResponse":
-      {
+    "exampleResponse":{
         "comment": [
           {
           "comment_id": 19,
@@ -73,5 +73,20 @@
         }
       ]
     }    
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "serves the article by it's id",
+    "queries": ["article_id, title, body, votes, topic, author, created_at, article_img_url, comment_count"],
+    "exampleResponse": {
+      "article_id": 1,
+      "title": "Living in the shadow of a great man",
+      "topic": "mitch",
+      "author": "butter_bridge",
+      "body": "I find this existence challenging",
+      "created_at": "2020-07-10T00:11:00.000Z",
+      "votes": 100,
+      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      "comment_count": 11
+    }
   }
 }

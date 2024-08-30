@@ -98,6 +98,41 @@ describe('CORE: GET/api/articles/:article_id', () => {
     });
 });
 
+describe('CORE: GET /api/articles', () => {
+    test('200: should return all articles sorted by date in descending order', () => {
+        return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then((response) => {
+                expect(response.body.articles).toBeInstanceOf(Array);
+                if (response.body.articles.length > 1) {
+                    const date1 = new Date(response.body.articles[0].created_at).getTime();
+                    const date2 = new Date(response.body.articles[1].created_at).getTime();
+                    expect(date1).toBeGreaterThanOrEqual(date2);
+                }
+        })
+    
+    });
+
+    test('200: should confirm that the first article object contains all required properties', () => {
+        return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then((response) => {
+                const article = response.body.articles[0];
+                expect(article).toHaveProperty('author');
+                expect(article).toHaveProperty('title');
+                expect(article).toHaveProperty('article_id');
+                expect(article).toHaveProperty('topic');
+                expect(article).toHaveProperty('created_at');
+                expect(article).toHaveProperty('votes');
+                expect(article).toHaveProperty('article_img_url');
+                expect(article).toHaveProperty('comment_count');
+                expect(article).not.toHaveProperty('body');
+        })
+    });
+});
+
 describe('CORE: GET /api/articles/:article_id/comments', () => {
     test('200: returns an array of comments for a valid article_id', () => {
         return request(app)
@@ -117,7 +152,7 @@ describe('CORE: GET /api/articles/:article_id/comments', () => {
 
     test('200: responds with the comment object expectation', () => {
         return request(app)
-          .get('/api/articles/1/comments')  // Assuming '1' is a valid article_id
+          .get('/api/articles/1/comments') 
           .expect(200)
           .then(({ body }) => {
             body.comments.forEach(comment => {
@@ -177,20 +212,19 @@ describe('CORE: POST /api/articles/:article_id/comments', () => {
         });   
     });     
 
-        // Test for non-existent article
+        
     test('404: should return an error if the article does not exist', async () => {
         const response = await request(app)
-            .post(`/api/articles/9999/comments`)  // Using a non-existent article ID
+            .post(`/api/articles/9999/comments`)
             .send({ username: 'validUser', body: 'Valid comment' })
             .expect(404);
 
         expect(response.body.error).toBe('Article not found');
     });
 
-    // Test for missing fields
     test('400: should return an error if required fields are missing', async () => {
-        const articleId = 1; // Assuming 1 is a valid article ID in your test setup
-        const invalidComment = {}; // Missing username and body
+        const articleId = 1; 
+        const invalidComment = {};
 
         const response = await request(app)
             .post(`/api/articles/${articleId}/comments`)
@@ -198,12 +232,44 @@ describe('CORE: POST /api/articles/:article_id/comments', () => {
             .expect(400);
 
         expect(response.body.error).toBe('Missing required fields: username, body');
+    });    
+});
+
+describe('CORE: PATCH /api/articles/:article_id:', () => {
+    test('200: should update the vote count and return the updated article', () => {
+        return request(app)
+        .patch('/api/articles/10')
+        .send({ inc_votes: 15 })
+        .expect(200)
+        .then((response) => {
+            expect(response.body.article.votes).toBe(15);
+        })
+    })
+
+    test('400: should return an error for invalid vote input', () => {
+        return request(app)
+        .patch('/api/articles/1')
+        .send({ inc_votes: 'ten' })
+        .expect(400)
+        .then((response) => {
+            expect(response.body.error).toBe('Invalid input for votes');
+        })             
     });
 
+    test('404: should return an error if the article does not exist', async () => {
+        const response = await request(app)
+            .patch('/api/articles/9999')
+            .send({ inc_votes: 1 })
+            .expect(404);
+    
+        expect(response.body.error).toBe('Article not found');
+    });
+    
     
 });
 
 //endpoints tests starts here
+
 describe('/api endpoints: ', () => {
     test('GET 200: responds with endpoints.json doc', () => {
         return request(app)
@@ -215,7 +281,7 @@ describe('/api endpoints: ', () => {
         });
     });
 
-    test('GET 200: responds with endpoints property on it', () => {
+    test('GET 200: responds with endpoints property on it', () => { 
         return request(app)
         .get('/api')
         .expect(200)
@@ -226,6 +292,7 @@ describe('/api endpoints: ', () => {
             expect(body).toHaveProperty('GET /api/articles');
         });
     });
+
     test('GET /api responds with it`s property', () => {
         return request(app)
         .get('/api')
@@ -250,6 +317,9 @@ describe('GET /api/articles', () => {
             expect(body['GET /api/topics']).toHaveProperty('queries')
             expect(typeof body['GET /api/articles'].queries).toBe('object');
             expect(Array.isArray(body['GET /api/articles'].queries)).toBe(true);
+            expect(body['GET /api/articles']).toHaveProperty('exampleResponse')
+            expect(typeof body['GET /api/articles'].exampleResponse).toBe('object');
+            
         });
     });   
 
@@ -257,28 +327,28 @@ describe('GET /api/articles', () => {
         return request(app)
         .get('/api')
         .expect(200)
-        .then((response) => {    
-            const { body } = response
-            const exampleResponse = body['GET /api/articles'].exampleResponse
-        expect(exampleResponse).toHaveProperty('articles');
-        expect(Array.isArray(exampleResponse.articles)).toBe(true);
+        .then((response) => {            
+            const exampleResponse = response.body['GET /api/articles'].exampleResponse;
 
-        exampleResponse.articles.forEach(article => {
-            expect(article).toHaveProperty('title');
-            expect(article).toHaveProperty('topic');
-            expect(article).toHaveProperty('author');
-            expect(article).toHaveProperty('body');
-            expect(article).toHaveProperty('created_at');
-            expect(article).toHaveProperty('votes');
-            expect(article).toHaveProperty('comment_count');
-            expect(typeof article.title).toBe('string');
-            expect(typeof article.topic).toBe('string');
-            expect(typeof article.author).toBe('string');
-            expect(typeof article.body).toBe('string');
-            expect(typeof article.created_at).toBe('string');
-            expect(typeof article.votes).toBe('number');
-            expect(typeof article.comment_count).toBe('number');
-            });
+            expect(exampleResponse).toBeDefined()
+            expect(typeof exampleResponse).toBe('object')
+        
+            const { articles } = exampleResponse
+        
+            expect(Array.isArray(articles)).toBe(true)
+            expect(articles.length).toBeGreaterThan(0)         
+            articles.forEach(article => {
+                expect(article).toEqual(expect.objectContaining({
+                    comment_count: expect.any(Number),
+                    title: expect.any(String),
+                    body: expect.any(String),
+                    votes: expect.any(Number),
+                    topic: expect.any(String),
+                    author: expect.any(String),
+                    created_at: expect.any(String),
+                    article_img_url: expect.any(String),
+                }));
+            });       
         });
     })
 });
@@ -295,35 +365,33 @@ describe('GET /api/articles/:article_id', () => {
             expect(body['GET /api/articles/:article_id']).toHaveProperty('queries')
             expect(typeof body['GET /api/articles/:article_id'].queries).toBe('object');
             expect(Array.isArray(body['GET /api/articles/:article_id'].queries)).toBe(true);
+            expect(body['GET /api/articles/:article_id']).toHaveProperty('exampleResponse')
+            expect(typeof body['GET /api/articles/:article_id'].exampleResponse).toBe('object');
         });
-    });   
+    });
 
-    test('GET /api/articles/:article_id responds with it`s exampleResponse property', () => {
+    test('GET /api/articles/:article_id responds with its exampleResponse property', () => {
         return request(app)
-        .get('/api')
-        .expect(200)
-        .then(({ body }) => {
-            const exampleResponse = body['GET /api/articles/:article_id'].exampleResponse;
-
-            expect(exampleResponse).toBeDefined();
-            expect(typeof exampleResponse).toBe('object');
+            .get('/api') 
+            .expect(200)
+            .then((response) => {    
+                const exampleResponse = response.body['GET /api/articles/:article_id'].exampleResponse;
     
-            expect(exampleResponse).toHaveProperty('article_id', 1);
-            expect(exampleResponse).toHaveProperty('title');
-            expect(typeof exampleResponse.title).toBe('string');
-            expect(exampleResponse).toHaveProperty('topic');
-            expect(typeof exampleResponse.topic).toBe('string');
-            expect(exampleResponse).toHaveProperty('author');
-            expect(typeof exampleResponse.author).toBe('string');
-            expect(exampleResponse).toHaveProperty('body');
-            expect(typeof exampleResponse.body).toBe('string');
-            expect(exampleResponse).toHaveProperty('created_at');
-            expect(typeof exampleResponse.created_at).toBe('string');
-            expect(exampleResponse).toHaveProperty('votes', 100);
-            expect(exampleResponse).toHaveProperty('article_img_url');
-            expect(typeof exampleResponse.article_img_url).toBe('string');
-            expect(exampleResponse).toHaveProperty('comment_count', 11);
-        });
+                expect(exampleResponse).toBeDefined();
+                expect(typeof exampleResponse).toBe('object');
+            
+                expect(exampleResponse).toEqual(expect.objectContaining({
+                    article_id: expect.any(Number),
+                    title: expect.any(String),
+                    topic: expect.any(String),
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number)
+            }));
+        }); 
     });
 });
 
@@ -339,6 +407,8 @@ describe('GET /api/articles/:article_id/comments', () => {
             expect(body['GET /api/articles/:article_id/comments']).toHaveProperty('queries')
             expect(typeof body['GET /api/articles/:article_id/comments'].queries).toBe('object');
             expect(Array.isArray(body['GET /api/articles/:article_id/comments'].queries)).toBe(true);
+            expect(body['GET /api/articles/:article_id/comments']).toHaveProperty('exampleResponse')
+            expect(typeof body['GET /api/articles/:article_id/comments'].exampleResponse).toBe('object');
         });
     });   
 
@@ -347,24 +417,25 @@ describe('GET /api/articles/:article_id/comments', () => {
         .get('/api')
         .expect(200)
         .then((response) => {    
-            const { body } = response
-            const exampleResponse = body['GET /api/articles/:article_id/comments'].exampleResponse
-        expect(exampleResponse).toHaveProperty('comments');
-        expect(Array.isArray(exampleResponse.comments)).toBe(true);
+            const exampleResponse = response.body['GET /api/articles/:article_id/comments'].exampleResponse;
 
-        exampleResponse.comments.forEach(comment => {
-            expect(comment).toHaveProperty('comment_id');
-            expect(comment).toHaveProperty('article_id');
-            expect(comment).toHaveProperty('author');
-            expect(comment).toHaveProperty('body');
-            expect(comment).toHaveProperty('created_at');
-            expect(comment).toHaveProperty('votes');
-            expect(typeof comment.comment_id).toBe('number');
-            expect(typeof comment.article_id).toBe('number');
-            expect(typeof comment.author).toBe('string');
-            expect(typeof comment.body).toBe('string');
-            expect(typeof comment.created_at).toBe('string');
-            expect(typeof comment.votes).toBe('number');
+            expect(exampleResponse).toBeDefined()
+            expect(typeof exampleResponse).toBe('object')
+        
+            const { comments } = exampleResponse
+
+            expect(Array.isArray(comments)).toBe(true)
+            expect(comments.length).toBeGreaterThan(0)
+        
+            comments.forEach(comment => {
+                expect(comment).toEqual(expect.objectContaining({
+                    comment_id: expect.any(Number),
+                    body: expect.any(String),
+                    votes: expect.any(Number),
+                    article_id: expect.any(Number),
+                    author: expect.any(String),
+                    created_at: expect.any(String),
+                }));
             });
         });
     })
@@ -382,6 +453,8 @@ describe('POST /api/articles/:article_id/comments', () => {
             expect(body['POST /api/articles/:article_id/comments']).toHaveProperty('queries')
             expect(typeof body['POST /api/articles/:article_id/comments'].queries).toBe('object');
             expect(Array.isArray(body['POST /api/articles/:article_id/comments'].queries)).toBe(true);
+            expect(body['POST /api/articles/:article_id/comments']).toHaveProperty('exampleResponse')
+            expect(typeof body['POST /api/articles/:article_id/comments'].exampleResponse).toBe('object');
         });
     });   
 
@@ -390,26 +463,70 @@ describe('POST /api/articles/:article_id/comments', () => {
         .get('/api')
         .expect(200)
         .then((response) => {    
-            const { body } = response
-            const exampleResponse = body['POST /api/articles/:article_id/comments'].exampleResponse
-        
-            expect(exampleResponse).toHaveProperty('comment');
-        expect(Array.isArray(exampleResponse.comment)).toBe(true);
+            const exampleResponse = response.body['POST /api/articles/:article_id/comments'].exampleResponse;
 
-        exampleResponse.comment.forEach(commentKeys => {
-            expect(commentKeys).toHaveProperty('comment_id');
-            expect(commentKeys).toHaveProperty('article_id');
-            expect(commentKeys).toHaveProperty('author');
-            expect(commentKeys).toHaveProperty('body');
-            expect(commentKeys).toHaveProperty('created_at');
-            expect(commentKeys).toHaveProperty('votes');
-            expect(typeof commentKeys.comment_id).toBe('number');
-            expect(typeof commentKeys.article_id).toBe('number');
-            expect(typeof commentKeys.author).toBe('string');
-            expect(typeof commentKeys.body).toBe('string');
-            expect(typeof commentKeys.created_at).toBe('string');
-            expect(typeof commentKeys.votes).toBe('number');
+            expect(exampleResponse).toBeDefined()
+            expect(typeof exampleResponse).toBe('object')
+        
+            const { comment } = exampleResponse
+
+            expect(Array.isArray(comment)).toBe(true)
+            expect(comment.length).toBeGreaterThan(0)
+        
+            comment.forEach(commentKeys => {
+                expect(commentKeys).toEqual(expect.objectContaining({
+                    comment_id: expect.any(Number),
+                    body: expect.any(String),
+                    votes: expect.any(Number),
+                    article_id: expect.any(Number),
+                    author: expect.any(String),
+                    created_at: expect.any(String),
+                }));
             });
         });
     })
 });
+
+describe('PATCH /api/articles/:article_id', () => { 
+    test('PATCH /api/articles/:article_id responds with description and querie property', () => {
+        return request(app)
+        .get('/api')
+        .expect(200)
+        .then((response) => {    
+            const { body } = response
+            expect(body['PATCH /api/articles/:article_id']).toHaveProperty('description')
+            expect(typeof body['GET /api/articles/:article_id'].description).toBe('string');
+            expect(body['PATCH /api/articles/:article_id']).toHaveProperty('queries')
+            expect(typeof body['GET /api/articles/:article_id'].queries).toBe('object');
+            expect(Array.isArray(body['GET /api/articles/:article_id'].queries)).toBe(true);
+            expect(body['PATCH /api/articles/:article_id']).toHaveProperty('exampleResponse')
+            expect(typeof body['PATCH /api/articles/:article_id'].exampleResponse).toBe('object');
+        });
+    });   
+
+    test('PATCH /api/articles/:article_id responds with its exampleResponse property', () => {
+        return request(app)
+            .get('/api')
+            .expect(200)
+            .then((response) => {    
+                const exampleResponse = response.body['PATCH /api/articles/:article_id'].exampleResponse;
+    
+                expect(exampleResponse).toBeDefined();
+                expect(typeof exampleResponse).toBe('object');
+            
+                expect(exampleResponse).toEqual(expect.objectContaining({
+                    article_id: expect.any(Number),
+                    title: expect.any(String),
+                    topic: expect.any(String),
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number)
+            }));
+        });  
+    });
+});
+
+

@@ -8,5 +8,6 @@ exports.getApiEndpoints = (req, res) => {
     if (!endpoints) {
         return res.status(500).json({ error: 'Failed to load endpoint data' });
     }
-    res.status(200).json(endpoints);
+    
+    res.status(200).json(endpoints)
 };

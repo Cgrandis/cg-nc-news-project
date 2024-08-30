@@ -1,4 +1,4 @@
-const { getAllTopics, getAllArticles, fetchArticlesById, fetchCommentsByArticleId } = require('../models/get-model')
+const { getAllTopics, fetchArticles, fetchArticlesById, fetchCommentsByArticleId } = require('../models/get-model')
 
 
 exports.getTopics = (req, res, next) => {
@@ -7,11 +7,18 @@ exports.getTopics = (req, res, next) => {
     })
 }
 
+// controllers/articlesController.js
 exports.getArticles = (req, res, next) => {
-    getAllArticles().then((articles) => {
-        res.status(200).send({articles});
-    });
-};  
+    fetchArticles()
+        .then(articles => {
+            res.status(200).json({ articles });
+        })
+        .catch(err => {
+            console.error("Failed to fetch articles:", err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+};
+
 
 exports.getArticlesById = (req, res, next) => {
     const { article_id } = req.params;
@@ -23,7 +30,7 @@ exports.getArticlesById = (req, res, next) => {
             if (err.status === 404) {
                 res.status(404).send({ msg: err.msg });
             } else {
-                next(err);  // For any other kinds of errors, pass them to your global error handler
+                next(err);  
             }
         });
 };

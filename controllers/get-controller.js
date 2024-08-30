@@ -1,4 +1,4 @@
-const { getAllTopics, fetchArticles, fetchArticlesById, fetchCommentsByArticleId } = require('../models/get-model')
+const { getAllTopics, fetchArticles, fetchArticlesById, fetchCommentsByArticleId, fetchUsers } = require('../models/get-model')
 
 
 exports.getTopics = (req, res, next) => {
@@ -52,5 +52,15 @@ exports.getCommentsByArticleId = (req, res, next) => {
         .catch(err => {
             console.error(err);
             next(err);
+        });
+};
+
+exports.getUsers = (req, res, next) => {
+    fetchUsers()
+        .then(users => {
+            res.status(200).json({ users });
+        })
+        .catch(err => {            
+            res.status(500).json({ error: 'Internal server error' });
         });
 };

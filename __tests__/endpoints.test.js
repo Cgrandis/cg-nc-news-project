@@ -284,6 +284,38 @@ describe('CORE: DELETE /api/comments/:comment_id', () => {
     });
 });
 
+describe('CORE: GET /api/users', () => {
+    test('200: responds with an array of user objects', async () => {
+        const { body } = await request(app)
+            .get('/api/users')
+            .expect(200);
+        
+        expect(Array.isArray(body.users)).toBe(true);
+        body.users.forEach(user => {
+        
+            expect(user).toEqual(expect.objectContaining({
+                username: expect.any(String),
+                name: expect.any(String),
+                avatar_url: expect.any(String)
+            }));
+        });
+    });
+
+    test('500: handles database errors', async () => {
+
+        jest.spyOn(db, 'query').mockRejectedValueOnce(new Error('Bad database connection'));
+
+        const response = await request(app)
+            .get('/api/users')
+            .expect(500);
+
+        expect(response.body.error).toBe('Internal server error');
+        
+        db.query.mockRestore();
+    });
+});
+
+
 //endpoints tests starts here
 
 describe('/api endpoints: ', () => {
@@ -330,7 +362,7 @@ describe('GET /api/articles', () => {
             const { body } = response
             expect(body['GET /api/articles']).toHaveProperty('description')
             expect(typeof body['GET /api/articles'].description).toBe('string');
-            expect(body['GET /api/topics']).toHaveProperty('queries')
+            expect(body['GET /api/articles']).toHaveProperty('queries')
             expect(typeof body['GET /api/articles'].queries).toBe('object');
             expect(Array.isArray(body['GET /api/articles'].queries)).toBe(true);
             expect(body['GET /api/articles']).toHaveProperty('exampleResponse')
@@ -546,7 +578,7 @@ describe('PATCH /api/articles/:article_id', () => {
 });
 
 describe('DELETE /api/comments/:comment_id', () => {
-    test.only('DELETE /api/comments/:comment_id responds with expected properties', () => {
+    test('DELETE /api/comments/:comment_id responds with expected properties', () => {
         return request(app)
         .get('/api')
         .expect(200)
@@ -563,4 +595,48 @@ describe('DELETE /api/comments/:comment_id', () => {
         });
     });   
 });
+
+describe('GET /api/users', () => {
+    test('GET /api/users responds with expected properties', () => {
+        return request(app)
+        .get('/api')
+        .expect(200)
+        .then((response) => {    
+            const { body } = response
+            expect(body['GET /api/users']).toHaveProperty('description')
+            expect(typeof body['GET /api/users'].description).toBe('string');
+            expect(body['GET /api/users']).toHaveProperty('queries')
+            expect(typeof body['GET /api/users'].queries).toBe('object');
+            expect(Array.isArray(body['GET /api/users'].queries)).toBe(true);
+            expect(body['GET /api/users']).toHaveProperty('exampleResponse')
+            expect(typeof body['GET /api/users'].exampleResponse).toBe('object');
+            
+        });
+    });   
+
+    test('GET /api/users responds with it`s exampleResponse property', () => {
+        return request(app)
+        .get('/api')
+        .expect(200)
+        .then((response) => {            
+            const exampleResponse = response.body['GET /api/users'].exampleResponse;
+
+            expect(exampleResponse).toBeDefined()
+            expect(typeof exampleResponse).toBe('object')
+        
+            const { users } = exampleResponse
+        
+            expect(Array.isArray(users)).toBe(true)
+            expect(users.length).toBeGreaterThan(0)         
+            users.forEach(user => {
+                expect(user).toEqual(expect.objectContaining({
+                    username: expect.any(String),
+                    name: expect.any(String),
+                    avatar_url: expect.any(String),
+                }));
+            });       
+        });
+    })
+});
+
 

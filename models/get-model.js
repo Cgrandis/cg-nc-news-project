@@ -42,3 +42,8 @@ exports.fetchCommentsByArticleId = (article_id) => {
     )
     .then(result => result.rows);
 };
+
+exports.fetchUsers = () => {
+    return db.query('SELECT username, name, avatar_url FROM users;')
+        .then(({ rows }) => rows);
+};

@@ -4,6 +4,7 @@ const { getTopics, getArticles, getArticlesById, getCommentsByArticleId } = requ
 const { addCommentToArticle } = require('./controllers/post-controller')
 const { getApiEndpoints } = require('./controllers/api-endpoints-controller')
 const { updateArticleVotes } = require('./controllers/patch-controller');
+const { deleteCommentById } = require('./controllers/api-delete-controller')
 
 app.use(express.json())
 
@@ -20,6 +21,8 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 app.post('/api/articles/:article_id/comments', addCommentToArticle)
 
 app.patch('/api/articles/:article_id', updateArticleVotes);
+
+app.delete('/api/comments/:comment_id', deleteCommentById);
 
 app.use((err, req, res, next) => {
   if (err.code === '22P02') { 

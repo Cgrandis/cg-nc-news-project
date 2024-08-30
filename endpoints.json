@@ -75,7 +75,7 @@
     }    
   },
   "PATCH /api/articles/:article_id": {
-    "description": "serves the article by it's id",
+    "description": "update an article by it's id",
     "queries": ["article_id, title, body, votes, topic, author, created_at, article_img_url, comment_count"],
     "exampleResponse": {
       "article_id": 1,
@@ -88,5 +88,10 @@
       "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
       "comment_count": 11
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "delete a comment by it's id",
+    "queries": [],
+    "exampleResponse": {}
   }
 }

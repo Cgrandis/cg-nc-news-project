@@ -7,18 +7,21 @@ exports.getTopics = (req, res, next) => {
     })
 }
 
-// controllers/articlesController.js
 exports.getArticles = (req, res, next) => {
-    fetchArticles()
+    const { sort_by, order } = req.query;
+    fetchArticles(sort_by, order)
         .then(articles => {
             res.status(200).json({ articles });
         })
         .catch(err => {
-            console.error("Failed to fetch articles:", err);
-            res.status(500).json({ error: 'Internal server error' });
+            if (err.status) {
+                res.status(err.status).json({ error: err.msg });
+            } else {
+                console.error("Failed to fetch articles:", err);
+                res.status(500).json({ error: 'Internal server error' });
+            }
         });
 };
-
 
 exports.getArticlesById = (req, res, next) => {
     const { article_id } = req.params;

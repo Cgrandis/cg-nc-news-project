@@ -119,6 +119,7 @@ describe('CORE: GET /api/articles', () => {
             .get('/api/articles')
             .expect(200)
             .then((response) => {
+               // console.log(response.body)
                 const article = response.body.articles[0];
                 expect(article).toHaveProperty('author');
                 expect(article).toHaveProperty('title');
@@ -130,6 +131,25 @@ describe('CORE: GET /api/articles', () => {
                 expect(article).toHaveProperty('comment_count');
                 expect(article).not.toHaveProperty('body');
         })
+    });
+
+    test('200: sorts articles by date in descending order by default', async () => {
+        const response = await request(app).get('/api/articles');
+        expect(response.status).toBe(200);
+        
+        const articles = response.body.articles;
+        expect(articles).toHaveLength(articles.length);
+    
+        // Manually check if articles are sorted by date in descending order using getTime()
+        for (let i = 1; i < articles.length; i++) {
+            expect(new Date(articles[i - 1].created_at).getTime()).toBeGreaterThanOrEqual(new Date(articles[i].created_at).getTime());
+        }
+    });
+
+    test('400: responds with an error for invalid sort_by column', async () => {
+        const response = await request(app).get('/api/articles?sort_by=not_a_column');
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe('Invalid sort_by parameter');
     });
 });
 
@@ -315,6 +335,9 @@ describe('CORE: GET /api/users', () => {
     });
 });
 
+describe('CORE: GET /api/articles', () => {
+    
+});
 
 //endpoints tests starts here
 

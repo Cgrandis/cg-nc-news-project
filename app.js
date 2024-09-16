@@ -8,7 +8,10 @@ const { updateArticleVotes } = require('./controllers/patch-controller');
 const { deleteCommentById } = require('./controllers/delete-controller')
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:5173'
+}));
+
 
 app.get('/api', getApiEndpoints);
 

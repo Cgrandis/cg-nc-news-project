@@ -76,6 +76,7 @@ describe('CORE: GET/api/articles/:article_id', () => {
                     article_img_url: expect.any(String),
                     comment_count: expect.anything(Number),
                 }));
+                
             });
     });
 
@@ -96,9 +97,31 @@ describe('CORE: GET/api/articles/:article_id', () => {
                 expect(response.body.msg).toBe('Invalid article_id');
             });
     });
+
+    test('200: responds with the article object for a given id, including comment_count', () => {
+        return request(app)
+            .get('/api/articles/1')
+            .expect(200)
+            .then((response) => {
+                const { body: { article } } = response;
+                expect(article).toEqual(expect.objectContaining({
+                    article_id: 1,
+                    title: expect.any(String),
+                    body: expect.any(String),
+                    votes: expect.any(Number),
+                    topic: expect.any(String),
+                    author: expect.any(String),
+                    created_at: expect.any(String),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number),
+                }));
+                // If you know the exact comment count
+                expect(article.comment_count).toBe(11); // Replace 11 with the expected count
+            });
+    });
 });
 
-describe.only('CORE: GET /api/articles', () => {
+describe('CORE: GET /api/articles', () => {
     test('200: should return all articles', async () => {
         const response = await request(app).get('/api/articles');
         

@@ -6,31 +6,46 @@ exports.getAllTopics = () => {
     });
 };
 
-exports.fetchArticles = (sort_by = 'created_at', order = 'desc') => {
-    const validColumns = [
-        'article_id', 'title', 'topic', 'author', 'created_at', 'votes', 'article_img_url', 'comment_count'
-    ];
+exports.fetchArticles = (topic, sort_by = 'created_at', order = 'desc') => {
+    
+    const queryValues = [];
+    let queryStr = `
+        SELECT 
+            articles.author,
+            articles.title,
+            articles.article_id,
+            articles.topic,
+            articles.created_at,
+            articles.votes,
+            articles.article_img_url, 
+            COUNT(comments.comment_id) AS comment_count
+        FROM articles
+        LEFT JOIN comments ON comments.article_id = articles.article_id
+    `;
 
-    // Check if sort_by is valid
-    if (!validColumns.includes(sort_by)) {
-        return Promise.reject({ status: 400, msg: 'Invalid sort_by parameter' });
+    if (topic) {
+        queryValues.push(topic);
+        queryStr += ` WHERE articles.topic = $1`;
     }
 
-    const sortOrder = order === 'asc' ? 'asc' : 'desc';
-
-    const query = `
-        SELECT articles.article_id, articles.title, articles.topic, articles.author, 
-               articles.created_at, articles.votes, articles.article_img_url, 
-               COUNT(comments.comment_id) AS comment_count
-        FROM articles
-        LEFT JOIN comments ON articles.article_id = comments.article_id
+    queryStr += `
         GROUP BY articles.article_id
-        ORDER BY ${sort_by} ${sortOrder};`;
+        ORDER BY ${sort_by} ${order.toUpperCase()};
+    `;
 
-    return db.query(query).then(({ rows }) => rows);
+    return db.query(queryStr, queryValues).then((result) => {
+        
+        return result.rows;
+    });
 };
 
-
+exports.checkTopicExists = (topic) => {
+    return db
+        .query(`SELECT * FROM topics WHERE slug = $1`, [topic])
+        .then((result) => {
+            return result.rows.length > 0;
+        });
+};
 
 
 exports.fetchArticlesById = (article_id) => {

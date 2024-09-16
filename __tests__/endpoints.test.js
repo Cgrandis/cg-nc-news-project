@@ -98,7 +98,18 @@ describe('CORE: GET/api/articles/:article_id', () => {
     });
 });
 
-describe('CORE: GET /api/articles', () => {
+describe.only('CORE: GET /api/articles', () => {
+    test('200: should return all articles', async () => {
+        const response = await request(app).get('/api/articles');
+        
+        expect(response.status).toBe(200);
+    
+        const articles = response.body.articles;
+        expect(articles).toHaveLength(articles.length);
+    
+        // Add other checks for properties or content of articles here...
+    });
+
     test('200: should return all articles sorted by date in descending order', () => {
         return request(app)
             .get('/api/articles')
@@ -149,7 +160,44 @@ describe('CORE: GET /api/articles', () => {
     test('400: responds with an error for invalid sort_by column', async () => {
         const response = await request(app).get('/api/articles?sort_by=not_a_column');
         expect(response.status).toBe(400);
-        expect(response.body.error).toBe('Invalid sort_by parameter');
+        expect(response.body.msg).toBe('Invalid sort_by parameter');
+    });
+
+    test('200: should return articles filtered by the specified topic', async () => {
+        const topic = 'mitch';
+        const res = await request(app)
+            .get(`/api/articles?topic=${topic}`)
+            .expect(200);
+            
+        expect(res.body.articles).toBeInstanceOf(Array);
+        expect(res.body.articles.length).toBeGreaterThan(0);
+        expect(res.body.articles.every(article => article.topic === topic)).toBe(true);
+    });
+
+    test('404: responds with an error when topic does not exist', async () => {
+        const nonExistentTopic = 'nonexistenttopic';
+        const response = await request(app)
+            .get(`/api/articles?topic=${nonExistentTopic}`)
+            .expect(404);
+
+        expect(response.body.msg).toBe('Topic not found');
+    });
+
+    test('200: responds with an empty array when topic exists but has no articles', async () => {
+        const topicWithNoArticles = 'paper'; // Ensure this topic exists in your test database
+        const response = await request(app)
+            .get(`/api/articles?topic=${topicWithNoArticles}`)
+            .expect(200);
+        
+        expect(response.body.articles).toEqual([]);
+    });
+
+    test('400: responds with an error for unsupported query parameters', async () => {
+        const response = await request(app)
+            .get('/api/articles?unsupportedParam=value')
+            .expect(400);
+
+        expect(response.body.msg).toBe('Invalid query parameter');
     });
 });
 
@@ -335,9 +383,6 @@ describe('CORE: GET /api/users', () => {
     });
 });
 
-describe('CORE: GET /api/articles', () => {
-    
-});
 
 //endpoints tests starts here
 

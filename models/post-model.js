@@ -2,9 +2,6 @@ const db = require('../db/connection');
 
 
 const addCommentByArticleId = (articleId, username, body) => {
-    if (!username || !body) {
-        return Promise.reject({ status: 400, msg: 'Bad Request: Missing required fields' });
-    }
 
     return db
         .query(`SELECT * FROM articles WHERE article_id = $1;`, [articleId])
@@ -20,8 +17,12 @@ const addCommentByArticleId = (articleId, username, body) => {
         .then((result) => {
             
             return result.rows[0];
+        })
+        .catch((error) => {
+            console.error('Database error:', error); 
+            throw error; 
         });
-};
+    };
 
 
 module.exports = { addCommentByArticleId };

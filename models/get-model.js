@@ -7,7 +7,6 @@ exports.getAllTopics = () => {
 };
 
 exports.fetchArticles = (topic, sort_by = 'created_at', order = 'desc') => {
-    
     const queryValues = [];
     let queryStr = `
         SELECT 
@@ -25,7 +24,7 @@ exports.fetchArticles = (topic, sort_by = 'created_at', order = 'desc') => {
 
     if (topic) {
         queryValues.push(topic);
-        queryStr += ` WHERE articles.topic = $1`;
+        queryStr += ` WHERE articles.topic = $1`; // Filter by topic
     }
 
     queryStr += `
@@ -34,19 +33,18 @@ exports.fetchArticles = (topic, sort_by = 'created_at', order = 'desc') => {
     `;
 
     return db.query(queryStr, queryValues).then((result) => {
-        
         return result.rows;
     });
 };
 
+// Check if the topic exists in the database
 exports.checkTopicExists = (topic) => {
     return db
-        .query(`SELECT * FROM topics WHERE slug = $1`, [topic])
+        .query(`SELECT * FROM topics WHERE slug = $1`, [topic]) // Validate topic slug
         .then((result) => {
             return result.rows.length > 0;
         });
 };
-
 
 exports.fetchArticlesById = (article_id) => {
     return db.query(

@@ -121,7 +121,7 @@ describe('CORE: GET/api/articles/:article_id', () => {
     });
 });
 
-describe('CORE: GET /api/articles', () => {
+describe.only('CORE: GET /api/articles', () => {
     test('200: should return all articles', async () => {
         const response = await request(app).get('/api/articles');
         
@@ -130,7 +130,6 @@ describe('CORE: GET /api/articles', () => {
         const articles = response.body.articles;
         expect(articles).toHaveLength(articles.length);
     
-        // Add other checks for properties or content of articles here...
     });
 
     test('200: should return all articles sorted by date in descending order', () => {

@@ -1,11 +1,5 @@
-const { getAllTopics, fetchArticles, fetchArticlesById, fetchCommentsByArticleId, fetchUsers, checkTopicExists } = require('../models/get-model')
+const { fetchArticles, fetchArticlesById, checkTopicExists } = require('../models/articleModel')
 
-
-exports.getTopics = (req, res, next) => {
-    getAllTopics().then((topics) => {
-        res.status(200).send({topics});
-    })
-}
 
 exports.getArticles = (req, res, next) => {
     const { topic, sort_by, order } = req.query;
@@ -90,32 +84,3 @@ exports.getArticlesById = (req, res, next) => {
         });
 };
 
-exports.getCommentsByArticleId = (req, res, next) => {
-    const { article_id } = req.params;
-
-    if (!Number.isInteger(parseInt(article_id))) {
-        return res.status(400).send({ msg: 'Invalid article ID' });
-    }
-
-    fetchCommentsByArticleId(article_id)
-        .then(comments => {
-            if (comments.length === 0) {
-                return res.status(404).send({ msg: 'No comments found for this article or article does not exist' });
-            }
-            res.status(200).send({ comments });
-        })
-        .catch(err => {
-            console.error(err);
-            next(err);
-        });
-};
-
-exports.getUsers = (req, res, next) => {
-    fetchUsers()
-        .then(users => {
-            res.status(200).json({ users });
-        })
-        .catch(err => {            
-            res.status(500).json({ error: 'Internal server error' });
-        });
-};

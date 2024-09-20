@@ -1,4 +1,4 @@
-const { adjustArticleVotes } = require('../models/patch-model');
+const { adjustArticleVotes } = require('../models/votesModel.');
 
 exports.updateArticleVotes = (req, res, next) => {
     const { article_id } = req.params;

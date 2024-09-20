@@ -1,7 +1,14 @@
 const db = require('../db/connection');
 
+exports.fetchCommentsByArticleId = (article_id) => {
+    return db.query(
+        `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
+        [article_id]
+    )
+    .then(result => result.rows);
+};
 
-const addCommentByArticleId = (articleId, username, body) => {
+exports.addCommentByArticleId = (articleId, username, body) => {
 
     return db
         .query(`SELECT * FROM articles WHERE article_id = $1;`, [articleId])
@@ -24,5 +31,17 @@ const addCommentByArticleId = (articleId, username, body) => {
         });
     };
 
-
-module.exports = { addCommentByArticleId };
+exports.removeCommentById = (comment_id) => {
+    return db.query(`
+        DELETE FROM comments
+        WHERE comment_id = $1
+        RETURNING *;
+    `, [comment_id])
+    .then(result => {
+        if (result.rows.length === 0) {
+            const error = new Error('Comment not found');
+            error.status = 404;
+            throw error;
+        }
+    });
+};

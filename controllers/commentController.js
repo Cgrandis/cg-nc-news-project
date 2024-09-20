@@ -1,5 +1,24 @@
-const { addCommentByArticleId } = require('../models/post-model');
+const { fetchCommentsByArticleId , addCommentByArticleId, removeCommentById } = require('../models/commentModel');
 
+exports.getCommentsByArticleId = (req, res, next) => {
+    const { article_id } = req.params;
+
+    if (!Number.isInteger(parseInt(article_id))) {
+        return res.status(400).send({ msg: 'Invalid article ID' });
+    }
+
+    fetchCommentsByArticleId(article_id)
+        .then(comments => {
+            if (comments.length === 0) {
+                return res.status(404).send({ msg: 'No comments found for this article or article does not exist' });
+            }
+            res.status(200).send({ comments });
+        })
+        .catch(err => {
+            console.error(err);
+            next(err);
+        });
+};
 
 exports.addCommentToArticle = (req, res, next) => {
     const { article_id } = req.params;
@@ -31,3 +50,18 @@ exports.addCommentToArticle = (req, res, next) => {
         });
 };
 
+exports.deleteCommentById = (req, res, next) => {
+    const { comment_id } = req.params;
+
+    removeCommentById(comment_id)
+        .then(() => {
+            res.status(204).end();
+        })
+        .catch(err => {
+            if (err.message === 'Comment not found') {
+                res.status(404).json({ error: err.message });
+            } else {
+                next(err);
+            }
+        });
+};

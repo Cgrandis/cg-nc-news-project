@@ -1,10 +1,5 @@
 const db = require('../db/connection');
 
-exports.getAllTopics = () => {
-    return db.query('SELECT * FROM topics;').then((result) => {
-        return result.rows;
-    });
-};
 
 exports.fetchArticles = (topic, sort_by = 'created_at', order = 'desc') => {
     const queryValues = [];
@@ -63,15 +58,4 @@ exports.fetchArticlesById = (article_id) => {
     });
 };
 
-exports.fetchCommentsByArticleId = (article_id) => {
-    return db.query(
-        `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
-        [article_id]
-    )
-    .then(result => result.rows);
-};
 
-exports.fetchUsers = () => {
-    return db.query('SELECT username, name, avatar_url FROM users;')
-        .then(({ rows }) => rows);
-};

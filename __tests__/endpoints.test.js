@@ -121,7 +121,7 @@ describe('CORE: GET/api/articles/:article_id', () => {
     });
 });
 
-describe.only('CORE: GET /api/articles', () => {
+describe('CORE: GET /api/articles', () => {
     test('200: should return all articles', async () => {
         const response = await request(app).get('/api/articles');
         
@@ -404,6 +404,45 @@ describe('CORE: GET /api/users', () => {
         db.query.mockRestore();
     });
 });
+
+// describe('POST /api/users/register', () => {
+//     test('201: Registers a new user successfully', async () => {
+//       const response = await request(app)
+//         .post('/api/users/register')
+//         .send({
+//           username: 'newUser',
+//           password: 'securePassword',
+//           email: 'newuser@example.com',
+//         });
+//       expect(response.status).toBe(201);
+//       expect(response.body.user).toHaveProperty('username', 'newUser');
+//       expect(response.body.user).toHaveProperty('email', 'newuser@example.com');
+//     });
+  
+//     test('400: Responds with error for missing fields', async () => {
+//       const response = await request(app)
+//         .post('/api/users/register')
+//         .send({
+//           username: 'newUser',
+//         });
+//       expect(response.status).toBe(400);
+//       expect(response.body.error).toBe('Missing required fields');
+//     });
+  
+//     test('409: Responds with error for duplicate username or email', async () => {
+//       await db.query('INSERT INTO users (username, email) VALUES ($1, $2)', ['existingUser', 'existing@example.com']);
+      
+//       const response = await request(app)
+//         .post('/api/users/register')
+//         .send({
+//           username: 'existingUser',
+//           password: 'securePassword',
+//           email: 'existing@example.com',
+//         });
+//       expect(response.status).toBe(409);
+//       expect(response.body.error).toBe('Username or email already exists');
+//     });
+//   });
 
 
 //endpoints tests starts here

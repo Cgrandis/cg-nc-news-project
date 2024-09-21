@@ -115,8 +115,8 @@ describe('CORE: GET/api/articles/:article_id', () => {
                     article_img_url: expect.any(String),
                     comment_count: expect.any(Number),
                 }));
-                // If you know the exact comment count
-                expect(article.comment_count).toBe(11); // Replace 11 with the expected count
+            
+                expect(article.comment_count).toBe(11); 
             });
     });
 });
@@ -152,7 +152,7 @@ describe('CORE: GET /api/articles', () => {
             .get('/api/articles')
             .expect(200)
             .then((response) => {
-               // console.log(response.body)
+            
                 const article = response.body.articles[0];
                 expect(article).toHaveProperty('author');
                 expect(article).toHaveProperty('title');
@@ -206,7 +206,7 @@ describe('CORE: GET /api/articles', () => {
     });
 
     test('200: responds with an empty array when topic exists but has no articles', async () => {
-        const topicWithNoArticles = 'paper'; // Ensure this topic exists in your test database
+        const topicWithNoArticles = 'paper';
         const response = await request(app)
             .get(`/api/articles?topic=${topicWithNoArticles}`)
             .expect(200);
@@ -382,11 +382,11 @@ describe('CORE: GET /api/users', () => {
         
         expect(Array.isArray(body.users)).toBe(true);
         body.users.forEach(user => {
-        
             expect(user).toEqual(expect.objectContaining({
                 username: expect.any(String),
-                name: expect.any(String),
-                avatar_url: expect.any(String)
+                first_name: expect.any(String),
+                surname: expect.any(String),   
+                email: expect.any(String)      
             }));
         });
     });
@@ -405,44 +405,54 @@ describe('CORE: GET /api/users', () => {
     });
 });
 
-// describe('POST /api/users/register', () => {
-//     test('201: Registers a new user successfully', async () => {
-//       const response = await request(app)
-//         .post('/api/users/register')
-//         .send({
-//           username: 'newUser',
-//           password: 'securePassword',
-//           email: 'newuser@example.com',
-//         });
-//       expect(response.status).toBe(201);
-//       expect(response.body.user).toHaveProperty('username', 'newUser');
-//       expect(response.body.user).toHaveProperty('email', 'newuser@example.com');
-//     });
+describe('POST /api/users/register', () => {
+    test('201: Registers a new user successfully', async () => {
+        const response = await request(app)
+          .post('/api/users/register')
+          .send({
+            first_name: 'John',
+            surname: 'Doe',
+            username: 'newUser',
+            email: 'newuser@example.com',
+            password: 'securePassword',
+          });
+    
+        expect(response.status).toBe(201);
+        expect(response.body.user).toHaveProperty('username', 'newUser');
+        expect(response.body.user).toHaveProperty('email', 'newuser@example.com');
+      });
   
-//     test('400: Responds with error for missing fields', async () => {
-//       const response = await request(app)
-//         .post('/api/users/register')
-//         .send({
-//           username: 'newUser',
-//         });
-//       expect(response.status).toBe(400);
-//       expect(response.body.error).toBe('Missing required fields');
-//     });
+    test('400: Responds with error for missing fields', async () => {
+      const response = await request(app)
+        .post('/api/users/register')
+        .send({
+          username: 'newUser',
+        });
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Missing required fields');
+    });
   
-//     test('409: Responds with error for duplicate username or email', async () => {
-//       await db.query('INSERT INTO users (username, email) VALUES ($1, $2)', ['existingUser', 'existing@example.com']);
+    test('409: Responds with error for duplicate username or email', async () => {
+        await db.query(
+          'INSERT INTO users (username, first_name, surname, email, password) VALUES ($1, $2, $3, $4, $5)', 
+          ['existingUser', 'John', 'Doe', 'existing@example.com', 'hashedPassword']
+        );
+        
+        const response = await request(app)
+          .post('/api/users/register')
+          .send({
+            first_name: 'John',  
+            surname: 'Doe',
+            username: 'existingUser',
+            email: 'existing@example.com',
+            password: 'securePassword',
+          });
       
-//       const response = await request(app)
-//         .post('/api/users/register')
-//         .send({
-//           username: 'existingUser',
-//           password: 'securePassword',
-//           email: 'existing@example.com',
-//         });
-//       expect(response.status).toBe(409);
-//       expect(response.body.error).toBe('Username or email already exists');
-//     });
-//   });
+        expect(response.status).toBe(409);
+        expect(response.body.error).toBe('Username or email already exists');
+      });
+      
+  });
 
 
 //endpoints tests starts here
@@ -767,5 +777,47 @@ describe('GET /api/users', () => {
         });
     })
 });
+
+describe('POST /api/users/register', () => {
+    test('POST /api/users/register responds with expected properties', () => {
+        return request(app)
+            .get('/api')
+            .expect(200)
+            .then((response) => {    
+                const { body } = response;
+                expect(body['POST /api/users/register']).toHaveProperty('description');
+                expect(typeof body['POST /api/users/register'].description).toBe('string');
+                expect(body['POST /api/users/register']).toHaveProperty('queries');
+                expect(Array.isArray(body['POST /api/users/register'].queries)).toBe(true);
+                expect(body['POST /api/users/register']).toHaveProperty('exampleRequest');
+                expect(typeof body['POST /api/users/register'].exampleRequest).toBe('object');
+                expect(body['POST /api/users/register']).toHaveProperty('exampleResponse');
+                expect(typeof body['POST /api/users/register'].exampleResponse).toBe('object');
+            });
+    });
+
+    test('POST /api/users/register responds with its exampleResponse property', () => {
+        return request(app)
+            .get('/api')
+            .expect(200)
+            .then((response) => {            
+                const exampleResponse = response.body['POST /api/users/register'].exampleResponse;
+
+                expect(exampleResponse).toBeDefined();
+                expect(typeof exampleResponse).toBe('object');
+                
+                const { user } = exampleResponse;
+                
+                expect(user).toEqual(expect.objectContaining({
+                    username: expect.any(String),
+                    first_name: expect.any(String),
+                    surname: expect.any(String),
+                    email: expect.any(String),
+                    created_at: expect.any(String) 
+            }));
+        });
+    });
+});
+
 
 

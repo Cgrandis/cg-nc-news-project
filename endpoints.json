@@ -106,5 +106,25 @@
         }
       ]
     }
+  },
+  "POST /api/users/register": {
+    "description": "registers a new user",
+    "queries": [],
+    "exampleRequest": {
+      "first_name": "John",
+      "surname": "Doe",
+      "username": "newUser",
+      "email": "newuser@example.com",
+      "password": "securePassword"
+    },
+    "exampleResponse": {
+      "user": {
+        "username": "newUser",
+        "first_name": "John",
+        "surname": "Doe",
+        "email": "newuser@example.com",
+        "created_at": "2024-09-20T12:34:56.789Z"
+      }
+    }
   }
 }

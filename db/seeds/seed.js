@@ -28,8 +28,11 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       const usersTablePromise = db.query(`
       CREATE TABLE users (
         username VARCHAR PRIMARY KEY,
-        name VARCHAR NOT NULL,
-        avatar_url VARCHAR
+        first_name VARCHAR NOT NULL,
+        surname VARCHAR NOT NULL,
+        avatar_url VARCHAR,
+        email VARCHAR UNIQUE NOT NULL,
+        password VARCHAR NOT NULL
       );`);
 
       return Promise.all([topicsTablePromise, usersTablePromise]);
@@ -66,11 +69,14 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       const topicsPromise = db.query(insertTopicsQueryStr);
 
       const insertUsersQueryStr = format(
-        'INSERT INTO users ( username, name, avatar_url) VALUES %L;',
-        userData.map(({ username, name, avatar_url }) => [
+        'INSERT INTO users (username, first_name, surname, avatar_url, email, password) VALUES %L;',
+        userData.map(({ username, first_name, surname, avatar_url, email, password }) => [
           username,
-          name,
+          first_name,
+          surname,
           avatar_url,
+          email,
+          password,
         ])
       );
       const usersPromise = db.query(insertUsersQueryStr);

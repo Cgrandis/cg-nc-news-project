@@ -1,7 +1,7 @@
 const db = require('../db/connection');
 
 exports.fetchUsers = () => {
-    return db.query('SELECT first_name, surname, username, email FROM users;')
+    return db.query('SELECT first_name, surname, username, email, password FROM users;')
         .then(({ rows }) => rows);
 };
 
